@@ -2281,9 +2281,9 @@ function kitchenRecord(hass, K, days) {
         return { ...o, min, modes: during };
       }).filter((o) => o.min > 0.5);
       const hottest = Math.max(0, ...ov.flatMap((o) => o.modes.map((m) => m.set || 0)));
-      // A low bake with nothing on the cooktop: Sculpey and friends bake at 230 to 275°F.
-      const clay = !used.length && ov.length && hottest > 0 && hottest <= 300;
-      return { a, b, on, burners: used, ovens: ov, clay, warmOnly: used.length === 1 && used[0].warm && !ov.length };
+      // A low bake (300°F or less) with nothing on the cooktop.
+      const lowBake = !used.length && ov.length && hottest > 0 && hottest <= 300;
+      return { a, b, on, burners: used, ovens: ov, lowBake, warmOnly: used.length === 1 && used[0].warm && !ov.length };
     });
     // Each day: statistics where they exist (days before today), raw history otherwise.
     const statRows = (id) => s[id] || [];
@@ -2613,14 +2613,14 @@ class CollageStoveCard extends CollageCard {
       const withOven = inSpan.filter((x) => x.ovens.length).length;
       finds.push(`An oven joined ${withOven} of the last ${inSpan.length} sessions.`);
     }
-    const clay = inSpan.filter((x) => x.clay).length;
-    if (clay) finds.push(`${clay === 1 ? "One low bake" : `${clay} low bakes`} with nothing on the cooktop: clay, perhaps.`);
+    const lowBakes = inSpan.filter((x) => x.lowBake).length;
+    if (lowBakes) finds.push(`${lowBakes === 1 ? "One low bake" : `${lowBakes} low bakes`} with nothing on the cooktop.`);
     const s0 = (x) => { const d = new Date(x.a); return d.toDateString() === new Date().toDateString() ? "Today" : `${DAYS[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]}`; };
     const slip = (x) => `<div class="slip">
         <div class="when num">${s0(x)}<span>${hhmm(x.a)} · ${mins(x.on / 60000)}</span></div>
         <div class="mini" aria-hidden="true">${this._K.burners.map((b) => `<i class="${x.burners.some((u) => u.key === b.key) ? "on" : ""}" style="left:${b.x}%;top:${b.y}%;width:${b.r * 2}%"></i>`).join("")}</div>
         <div class="what num">${x.burners.length ? `<b>${x.burners.length === 1 ? x.burners[0].name : `${x.burners.length} burners`}</b>${x.burners.length > 1 ? esc(x.burners.map((u) => u.name.toLowerCase()).join(", ")) : ""}` : x.ovens.length ? "<b>Oven only</b>" : ""}
-          ${x.ovens.length || x.clay || x.warmOnly ? `<span class="tags">${x.ovens.map((o) => `<span class="oven">${esc(o.name.replace(" oven", ""))} · ${esc(modesSaid(o.modes))} · ${mins(o.min)}</span>`).join("")}${x.clay ? `<span class="tag">Clay?</span>` : x.warmOnly ? `<span class="tag">Keeping warm</span>` : ""}</span>` : ""}</div>
+          ${x.ovens.length || x.lowBake || x.warmOnly ? `<span class="tags">${x.ovens.map((o) => `<span class="oven">${esc(o.name.replace(" oven", ""))} · ${esc(modesSaid(o.modes))} · ${mins(o.min)}</span>`).join("")}${x.lowBake ? `<span class="tag">Low bake</span>` : x.warmOnly ? `<span class="tag">Keeping warm</span>` : ""}</span>` : ""}</div>
       </div>`;
     const vs = prevFull && total + prevTotal > 0
       ? (Math.abs(total - prevTotal) < Math.max(10, prevTotal * 0.1) ? `About the same as ${KSPANS[span][3]}.` : `${mins(total - prevTotal)} ${total > prevTotal ? "more" : "less"} than ${KSPANS[span][3]}.`)
