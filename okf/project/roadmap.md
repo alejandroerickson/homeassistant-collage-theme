@@ -25,6 +25,8 @@ status: stable
   snapshot as a cut photo, a garage door.
 - Visual editors (`getConfigElement`) so cards can be set up without YAML.
 - Translations of the cards' sentences.
+- The Heat card for thermostats with two setpoints (`heat_cool` with `target_temp_low` and
+  `target_temp_high`): today it shows their modes and history but cannot change the setpoints.
 
 ## Open questions
 

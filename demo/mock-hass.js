@@ -21,7 +21,7 @@ const iso = (t) => new Date(t).toISOString();
 // agrees with the sky. Anywhere else, it is the middle of Clamart, near Paris, where Jean Arp and
 // Sophie Taeuber-Arp lived and worked.
 const PLACES = {
-  "America/Los_Angeles": [37.7793, -122.4193], "America/Vancouver": [37.7793, -122.4193], "America/Denver": [39.7392, -104.9903], "America/Chicago": [41.8781, -87.6298],
+  "America/Los_Angeles": [37.7764, -122.4346], "America/Vancouver": [37.7764, -122.4346], "America/Denver": [39.7392, -104.9903], "America/Chicago": [41.8781, -87.6298],
   "America/New_York": [40.6782, -73.9442], "America/Toronto": [43.6532, -79.3832], "Asia/Tokyo": [35.6762, 139.6503],
   "Australia/Sydney": [-33.8688, 151.2093], "Europe/London": [51.5072, -0.1276],
 };

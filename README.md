@@ -36,6 +36,9 @@ entities.
 
 ### The cards, through HACS
 
+**[Open Collage in HACS on your Home Assistant.](https://my.home-assistant.io/redirect/hacs_repository/?owner=alejandroerickson&repository=home-assistant-collage-theme&category=plugin)**
+Or by hand:
+
 1. In [HACS](https://hacs.xyz/), open the three dots > **Custom repositories**, add
    `https://github.com/alejandroerickson/home-assistant-collage-theme` with the type
    **Dashboard**, then find **Collage** and download it.
@@ -114,7 +117,7 @@ lights: [light.living_room, light.kitchen]
 alerts:
   - entity: binary_sensor.back_door
     state: "on"                 # or above: 30, or below: 15
-    text: Back door open        # {state} is replaced by the reading
+    text: Back door open        # optional; {state} is replaced by the reading
     level: error                # red instead of pink
     navigate: /lovelace/doors   # optional: go there instead of opening the entity
 ```
@@ -241,6 +244,7 @@ unlocked, red when jammed. One tap locks; unlocking takes a second tap within fo
 type: custom:collage-lock-card
 entity: lock.front_door
 confirm: true    # false: one tap unlocks
+code: "1234"     # optional, for a lock that asks for a code (anyone who can open the dashboard can read it)
 ```
 
 ### People: `collage-people-card`

@@ -594,7 +594,7 @@ class CollageRoomCard extends CollageCard {
 // ---------- status: the house in one sentence ----------
 
 class CollageStatusCard extends CollageCard {
-  validate(c) { return { lights: [], alerts: [], ...c }; }
+  validate(c) { return { ...c, lights: [].concat(c.lights || []), alerts: [].concat(c.alerts || []) }; }
   watch() {
     const c = this._config;
     return [c.temperature, c.climate, "sun.sun", ...c.lights, ...c.alerts.map((a) => a.entity)].filter(Boolean);
@@ -656,7 +656,7 @@ class CollageStatusCard extends CollageCard {
         <div class="sun num">${up ? "Sunset" : "Sunrise"}<b>${sunTime}</b></div>
         <p class="lead">${lead}</p>
         ${lit.length ? `<div class="lit">${litNames.length === 1 ? litNames[0] : `${litNames.slice(0, -1).join(", ")} and ${litNames[litNames.length - 1]}`} ${lit.length === 1 ? "light is" : "lights are"} on.</div>` : ""}
-        ${alerts.length ? `<div class="alerts">${alerts.map((a, i) => `<button class="alert ${a.level === "error" ? "error" : ""}" data-i="${i}">${esc((a.text_one && Number(a.value) === 1 ? a.text_one : a.text).replace("{state}", a.value))}</button>`).join("")}</div>` : ""}
+        ${alerts.length ? `<div class="alerts">${alerts.map((a, i) => `<button class="alert ${a.level === "error" ? "error" : ""}" data-i="${i}">${esc((a.text_one && Number(a.value) === 1 ? a.text_one : a.text || this.st(a.entity)?.attributes.friendly_name || a.entity).replace("{state}", a.value))}</button>`).join("")}</div>` : ""}
       </div>`;
     this.shadowRoot.querySelectorAll(".alert").forEach((b) => b.addEventListener("click", () => {
       const a = alerts[Number(b.dataset.i)];
@@ -690,9 +690,10 @@ class CollageActionCard extends CollageCard {
     pressable(bar, {
       tap: () => {
         const [domain, service] = c.action.split(".");
-        this._hass.callService(domain, service, c.data || {});
-        bar.classList.add("done");
-        setTimeout(() => bar.classList.remove("done"), 2200);
+        this.run(domain, service, c.data || {}).then(() => {
+          bar.classList.add("done");
+          setTimeout(() => bar.classList.remove("done"), 2200);
+        }).catch(() => {});
       },
     });
   }
@@ -1477,7 +1478,8 @@ class CollageSunCard extends CollageCard {
   disconnectedCallback() { super.disconnectedCallback(); clearInterval(this._tick); }
 
   railMap() {
-    const rails = this._config.rails.map((r) => ({ ...r, s: this.st(r.entity) })).filter((r) => r.s);
+    const rails = this._config.rails.map((r) => ({ ...r, s: this.st(r.entity) })).filter((r) => r.s)
+      .map((r) => ({ ...r, name: r.name || r.s.attributes.friendly_name || (r.from_top ? "Top rail" : "Bottom rail") }));
     return { top: rails.find((r) => r.from_top), bottom: rails.find((r) => !r.from_top), list: rails };
   }
   pos(r) { return r.s.attributes.current_position ?? (r.s.state === "open" ? 100 : 0); }
@@ -1777,7 +1779,7 @@ class CollageSunCard extends CollageCard {
 // ---------- upkeep: batteries, devices not answering, the host, backups ----------
 
 class CollageUpkeepCard extends CollageCard {
-  validate(c) { return { name: "Upkeep", batteries: [], offline: [], ...c }; }
+  validate(c) { return { name: "Upkeep", ...c, batteries: [].concat(c.batteries || []), offline: [].concat(c.offline || []) }; }
   watch() { const c = this._config; return [...c.batteries, ...c.offline, c.cpu, c.memory, c.backup].filter(Boolean); }
   getGridOptions() { return { columns: 12, rows: "auto" }; }
   // Every backup and where it is kept, from the backup integration (admins only),
@@ -1796,13 +1798,13 @@ class CollageUpkeepCard extends CollageCard {
     const bats = c.batteries.map((id) => ({ id, s: this.st(id) })).filter((b) => b.s)
       .map((b) => ({ ...b, v: Number(b.s.state), name: (c.names || {})[b.id] || (b.s.attributes.friendly_name || b.id).replace(/ battery( level)?$/i, "") }))
       .sort((a, b) => (isNaN(a.v) ? -1 : isNaN(b.v) ? 1 : a.v - b.v));
-    const offline = c.offline.filter((id) => ["unavailable", "unknown"].includes(this.st(id)?.state)).map((id) => (c.names || {})[id] || this.st(id).attributes.friendly_name);
+    const offline = c.offline.filter((id) => ["unavailable", "unknown"].includes(this.st(id)?.state)).map((id) => (c.names || {})[id] || this.st(id)?.attributes.friendly_name || id);
     const cpu = this.st(c.cpu), mem = this.st(c.memory), backup = this.st(c.backup);
     const backupAge = backup && !isNaN(new Date(backup.state)) ? Date.now() - new Date(backup.state) : null;
     // The newest automatic and manual backups, and where each is kept: "Local, NAS" (rename with locations).
     const newest = (auto) => (this._backups || []).filter((b) => (b.with_automatic_settings === true) === auto)
       .reduce((a, b) => (!a || new Date(b.date) > new Date(a.date) ? b : a), null);
-    const where = (b) => b ? ` · ${Object.keys(b.agents).map((id) => esc((c.locations || {})[id] || said(id.replace(/^.*\./, "")))).join(", ")}` : "";
+    const where = (b) => b ? ` · ${Object.keys(b.agents || {}).map((id) => esc((c.locations || {})[id] || said(id.replace(/^.*\./, "")))).join(", ")}` : "";
     const auto = newest(true), manual = newest(false);
     // A battery as cut paper: a thick ink outline and a nub, holding four hand-cut cells,
     // as many filled as quarters of charge. No number: the cells say enough.
@@ -2189,7 +2191,8 @@ const BURNERS = [
 ];
 const OVENS = [{ key: "upper", name: "Upper oven", control: "oven" }, { key: "lower", name: "Lower oven", control: "lower_oven" }];
 function kitchenOf(c) {
-  const P = c.appliance, S = c.statistics === false ? null : c.statistics || "kitchen";
+  const P = c.appliance, S = c.statistics === false ? null : typeof c.statistics === "string" ? c.statistics : "kitchen";
+  for (const b of c.burners || []) if (!b.sensor) throw new Error("each burner needs sensor: its part of the entity id, such as left_front");
   const stat = (name) => (S ? `sensor.${S}_${name}` : null);
   return {
     key: `${P}|${S}`,
@@ -2693,8 +2696,9 @@ function doorsOf(c) {
   // A weather entity as `outside` is read from its temperature attribute.
   const weather = c.weather || (c.outside && c.outside.startsWith("weather.") ? c.outside : null);
   const outside = c.outside && !c.outside.startsWith("weather.") ? c.outside : null;
-  return { key: [...doors.map((d) => d.id), outside, weather, c.alarm, c.armed].join(","), doors, outside, weather,
-    alarm: c.alarm || null, armed: c.armed || null, cold: c.cold, sensors: c.sensors || [] };
+  return { key: [...doors.map((d) => `${d.id}:${d.limit}`), outside, weather, c.alarm, c.armed, c.cold, c.statistics].join(","), doors, outside, weather,
+    alarm: c.alarm || null, armed: c.armed || null, cold: c.cold,
+    sensors: [].concat(c.sensors || []).map((x) => (typeof x === "string" ? { entity: x } : x)) };
 }
 // Names come from Home Assistant when the card doesn't give one.
 const nameDoors = (D, hass) => D.doors.forEach((d) => { d.name = d.name || hass.states[d.id]?.attributes.friendly_name || said(d.key); });
@@ -2713,7 +2717,7 @@ const doorDays = (k) => (k === "day" ? 3 : Math.min(DSPANS[k][0] * 2, 728));
 // "9 s" under a minute, "4 m", "1 h 12 m"; never split across lines.
 const opened = (m) => (m <= 0 ? "0 m" : m < 1 ? `${Math.max(1, Math.round(m * 60))} s` : mins(m));
 const doorWord = (d) => d.name.toLowerCase();
-const tempSaid = (v) => `${Math.round(v)} °C`;
+const tempSaid = (v) => `${Math.round(v)} ${tempUnit}`;
 
 // The doors' record for the last `days` days: one row per day (openings, minutes open, the longest,
 // per door; the outside temperature's low, mean and high; the share of the day armed), each
@@ -3151,7 +3155,8 @@ class CollageDoorsNowCard extends CollageCard {
     };
     // The alarm, and any other sensors.
     const a = ALARM && st(ALARM);
-    const alarmSaid = { disarmed: "Disarmed", armed_home: "Armed, home", armed_away: "Armed, away", armed_night: "Armed, night", arming: "Arming", pending: "Entry delay", triggered: "Triggered" }[a] || "Not answering";
+    const alarmSaid = { disarmed: "Disarmed", armed_home: "Armed, home", armed_away: "Armed, away", armed_night: "Armed, night", armed_vacation: "Armed, away", armed_custom_bypass: "Armed", arming: "Arming",
+      disarming: "Disarming", pending: "Entry delay", triggered: "Triggered" }[a] || (!a || a === "unavailable" || a === "unknown" ? "Not answering" : said(a));
     const alarmCls = a === "triggered" ? "err" : a && a.startsWith("armed") ? "armed" : !a || a === "unavailable" ? "warn" : "";
     const rows = rec ? rec.rows.slice(-DSPANS[span][0]).filter((r) => r.armed != null) : [];
     const armedShare = rows.length ? sum(rows.map((r) => r.armed)) / rows.length : null;
@@ -3288,7 +3293,9 @@ class CollageSensorCard extends CollageCard {
     pressable(this.shadowRoot.querySelector(".card"), { tap: () => this.moreInfo(c.entity), hold: () => this.moreInfo(c.entity) });
     if (!numeric) return;
     if (this._pts) this.draw();
-    this.scheduleHistory(() => fetchHistory(this._hass, [c.entity], c.hours, false, !reloadHistory)
+    // A sensor may change every few seconds: its history comes from the five-minute cache, and
+    // the live reading is drawn at "now".
+    this.scheduleHistory(() => fetchHistory(this._hass, [c.entity], c.hours, false, false)
       .then((h) => { this._pts = (h[c.entity] || []).map((p) => [p.t, Number(p.s)]).filter((p) => !isNaN(p[1])); this.draw(); }).catch(() => {}));
   }
 
@@ -3296,7 +3303,8 @@ class CollageSensorCard extends CollageCard {
     const plot = this.shadowRoot.getElementById("plot"), figs = this.shadowRoot.getElementById("figs");
     if (!plot || !this._pts || !this._pts.length) return;
     const c = this._config, now = Date.now(), from = now - c.hours * 3600000;
-    const all = [...this._pts, [now, this._pts[this._pts.length - 1][1]]];
+    const live = Number(this.st(c.entity)?.state);
+    const all = [...this._pts, [now, isNaN(live) ? this._pts[this._pts.length - 1][1] : live]];
     const pts = all.filter((p, i) => p[0] >= from || (all[i + 1] && all[i + 1][0] > from));
     const vals = pts.map((p) => p[1]);
     const lo = Math.min(...vals), hi = Math.max(...vals), mid = median(vals);
@@ -3396,16 +3404,23 @@ class CollageWeatherCard extends CollageCard {
   disconnectedCallback() {
     super.disconnectedCallback();
     this._ro && this._ro.disconnect();
+    this.unsubscribe();
+  }
+  unsubscribe() {
     for (const k of ["hourly", "daily"]) { this._unsub?.[k]?.then((u) => u && u()).catch(() => {}); }
-    this._unsub = null;
+    this._unsub = null; this._subFor = null;
   }
   // Hourly for the day's form, daily (or twice daily) for the slips, as far as the entity offers.
   subscribe() {
     const c = this._config, s = this.st(c.entity);
-    if (this._unsub || !s || !this._hass.connection) return;
+    if (!s || !this._hass.connection || this._subFor === c.entity) return;
     const f = s.attributes.supported_features || 0;
+    if (!(f & 7)) return;
+    // A new entity (a changed config) drops the old subscription and its forecasts.
+    this.unsubscribe();
+    this._subFor = c.entity;
     this._unsub = {};
-    this._fc = this._fc || {};
+    this._fc = {};
     const sub = (key, type) => {
       this._unsub[key] = this._hass.connection.subscribeMessage((m) => { this._fc[key] = m.forecast || []; key === "hourly" ? this.drawHours() : this.drawDays(); },
         { type: "weather/subscribe_forecast", forecast_type: type, entity_id: c.entity }).catch(() => null);
@@ -3695,14 +3710,14 @@ class CollageLockCard extends CollageCard {
     pressable(this.shadowRoot.querySelector(".lock"), {
       tap: () => {
         if (gone || moving) return;
-        if (!locked) { this._asking = 0; this.run("lock", "lock", { entity_id: c.entity }, `${name} didn't answer.`).catch(() => {}); return; }
+        if (!locked) { this._asking = 0; this.run("lock", "lock", { entity_id: c.entity, ...(c.code ? { code: String(c.code) } : {}) }, `${name} didn't answer.`).catch(() => {}); return; }
         if (c.confirm && !(this._asking && Date.now() - this._asking < 4000)) {
           this._asking = Date.now(); this.update();
           clearTimeout(this._askTimer); this._askTimer = setTimeout(() => { this._asking = 0; this.update(); }, 4000);
           return;
         }
         this._asking = 0;
-        this.run("lock", "unlock", { entity_id: c.entity }, `${name} didn't answer.`).catch(() => {});
+        this.run("lock", "unlock", { entity_id: c.entity, ...(c.code ? { code: String(c.code) } : {}) }, `${name} didn't answer.`).catch(() => {});
       },
       hold: () => this.moreInfo(c.entity),
     });
