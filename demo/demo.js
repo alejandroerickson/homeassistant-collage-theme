@@ -63,8 +63,11 @@ const VIEWS = {
 
 let hass;
 const cards = [];
-const refresh = () => { hass = { ...hass, states: { ...hass.states } }; for (const c of cards) c.hass = hass; };
+// The pretend Home Assistant changes its own states object; each refresh hands the cards a fresh
+// copy of it (a copy of the last copy would miss every change after the first).
+const refresh = () => { hass = { ...hass, states: { ...live } }; for (const c of cards) c.hass = hass; };
 hass = makeHass(refresh);
+const live = hass.states;
 
 function card(config) {
   const el = document.createElement(config.type);
