@@ -1,0 +1,126 @@
+# A dashboard in the Collage theme: paste it into a new dashboard's raw configuration editor
+# (Settings > Dashboards > Add dashboard > New dashboard from scratch, then the three dots > Raw
+# configuration editor) and change the entity ids to your own. Every card here is in the README.
+# The same layout runs in the demo (demo/demo.js) on made-up entities.
+title: Home
+views:
+  - title: Home
+    path: home
+    type: sections
+    theme: Collage
+    max_columns: 3
+    sections:
+      - cards:
+          - type: custom:collage-status-card
+            temperature: sensor.inside_temperature
+            climate: climate.thermostat
+            lights: [light.living_room, light.kitchen, light.dining_room, switch.basement]
+            alerts:
+              - entity: binary_sensor.back_door
+                state: "on"
+                text: Back door open
+              - entity: sensor.smoke_alarm_battery
+                below: 15
+                text: Smoke alarm battery low
+                level: error
+          - type: custom:collage-room-card
+            entity: light.living_room
+            name: Living
+            color: orange
+            form: 1
+            form_color: black
+          - type: custom:collage-room-card
+            entity: light.dining_room
+            name: Dining
+            color: red
+            form: 2
+            form_color: yellow
+          - type: custom:collage-room-card
+            entity: light.kitchen
+            name: Kitchen
+            color: yellow
+            form: 3
+            form_color: cobalt
+          - type: custom:collage-room-card
+            entity: switch.basement
+            name: Basement
+            color: cobalt
+            form: 4
+            form_color: pink
+          - type: custom:collage-action-card
+            name: Lights out
+            note: Every light off
+            action: light.turn_off
+            data:
+              entity_id: [light.living_room, light.kitchen, light.dining_room]
+          - type: custom:collage-lock-card
+            entity: lock.front_door
+            grid_options: { columns: 6 }
+          - type: custom:collage-sensor-card
+            entity: sensor.living_room_humidity
+            name: Humidity
+            color: olive
+            grid_options: { columns: 6 }
+      - cards:
+          - type: custom:collage-climate-card
+            climate: climate.thermostat
+            temperature: sensor.inside_temperature
+            outside: weather.home
+            runner: Furnace
+          - type: custom:collage-sun-card
+            map: true
+            rails:
+              - entity: cover.shade_top_rail
+                name: Top rail
+                from_top: true
+              - entity: cover.shade_bottom_rail
+                name: Bottom rail
+            shade_name: Study shade
+            lights: light.porch
+      - cards:
+          - type: custom:collage-weather-card
+            entity: weather.home
+            name: Outside
+          - type: custom:collage-people-card
+            people: [person.kim, person.sam, person.lee]
+          - type: custom:collage-media-card
+            entity: media_player.living_room_speaker
+          - type: custom:collage-upkeep-card
+            batteries: [sensor.front_door_lock_battery, sensor.hall_motion_battery, sensor.smoke_alarm_battery]
+            offline: [binary_sensor.shed_door]
+            cpu: sensor.system_monitor_processor_use
+            memory: sensor.system_monitor_memory_usage
+            backup: sensor.backup_last_successful_automatic_backup
+
+  - title: Doors
+    path: doors
+    type: sections
+    theme: Collage
+    max_columns: 2
+    sections:
+      - cards:
+          - type: custom:collage-doors-now-card
+            doors: &doors
+              - entity: binary_sensor.front_door
+                color: orange
+                limit: 5
+              - entity: binary_sensor.back_door
+                color: yellow
+                limit: 5
+              - entity: binary_sensor.patio_door
+                color: red
+            alarm: alarm_control_panel.home
+            outside: weather.home
+            sensors:
+              - entity: binary_sensor.basement_leak
+                name: Leak
+                "on": Wet!
+                "off": Dry
+          - type: custom:collage-doors-card
+            doors: *doors
+            outside: weather.home
+            log: true
+      - cards:
+          - type: custom:collage-doors-card
+            doors: *doors
+            outside: weather.home

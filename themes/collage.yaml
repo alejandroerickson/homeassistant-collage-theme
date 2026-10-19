@@ -1,0 +1,163 @@
+# Collage: the house as cut paper pinned to a dim wall, after the collages of Jean Arp and
+# Sophie Taeuber-Arp. Cards are flat sheets of poster colour with square corners and a hairline
+# pinned shadow; nothing is glass, nothing is rounded. The Collage cards (dist/collage.js) read the
+# hc-* variables below; Home Assistant's own cards, dialogs and pages read the rest.
+#
+# One look in light and dark mode: paper is paper. Dashboard views sit on the wall; everything
+# outside a dashboard (Settings, dialogs) is a darker sheet of paper, so the theme is safe as the
+# default theme. See DESIGN.md for what each colour means.
+Collage:
+  # The paper colours. Change these and every Collage card follows.
+  hc-cobalt: "#1F3D8C"
+  hc-yellow: "#F2B705"
+  hc-orange: "#E8632B"
+  hc-red: "#D7301F"
+  hc-olive: "#6B7F2A"
+  hc-pink: "#E9A3B8"
+  hc-black: "#141414"
+  hc-paper: "#F4F0E6"
+  hc-display: '"Familjen Grotesk", Roboto, sans-serif'
+
+  # The wall: a dim violet-grey, lit from above the middle, drawn in CSS so the theme needs no
+  # image. To hang a picture instead: "center / cover no-repeat fixed url('/local/wall.jpg') #15161C".
+  lovelace-background: >-
+    radial-gradient(ellipse 60% 45% at 44% 46%, rgba(98,103,122,.55), transparent 70%) fixed,
+    radial-gradient(ellipse 45% 40% at 22% 28%, rgba(22,52,98,.6), transparent 70%) fixed,
+    radial-gradient(ellipse 40% 30% at 78% 14%, rgba(70,62,68,.5), transparent 70%) fixed,
+    radial-gradient(ellipse 55% 12% at 56% 74%, rgba(96,104,118,.42), transparent 75%) fixed,
+    radial-gradient(ellipse 40% 30% at 10% 88%, rgba(52,30,52,.5), transparent 70%) fixed,
+    #0F1016
+  # Outside the dashboard (Settings, dialogs) the page is a darker sheet of paper.
+  primary-background-color: "#E6E0D2"
+  secondary-background-color: "#DDD6C6"
+
+  # One face: Familjen Grotesk, loaded by dist/collage.js; Roboto until it arrives.
+  ha-font-family-body: '"Familjen Grotesk", Roboto, sans-serif'
+  ha-font-family-heading: '"Familjen Grotesk", Roboto, sans-serif'
+  primary-font-family: '"Familjen Grotesk", Roboto, sans-serif'
+  paper-font-common-base_-_font-family: '"Familjen Grotesk", Roboto, sans-serif'
+
+  # Built-in cards are paper too: square, pinned, ink on paper.
+  card-background-color: "#F4F0E6"
+  ha-card-background: "#F4F0E6"
+  ha-card-border-radius: "0px"
+  ha-card-border-width: "0px"
+  ha-card-box-shadow: "0 1px 1px rgba(0,0,0,.28), 0 8px 18px -6px rgba(0,0,0,.45)"
+  ha-card-header-color: "#141414"
+  ha-tile-icon-border-radius: "0px"
+  ha-badge-border-radius: "0px"
+  feature-border-radius: "0px"
+  control-button-border-radius: "0px"
+  ha-border-radius-sm: "0px"
+  ha-border-radius-md: "0px"
+  ha-border-radius-lg: "0px"
+  ha-border-radius-xl: "0px"
+  # The bottom sheet sets its own radius from this one.
+  ha-border-radius-2xl: "0px"
+  primary-text-color: "#141414"
+  secondary-text-color: "#4A4740"
+  disabled-text-color: "#8C877C"
+  text-primary-color: "#F4F0E6"
+  divider-color: "rgba(20,20,20,.12)"
+  # Section headings sit on the wall, so they are paper.
+  ha-heading-card-title-color: "#F4F0E6"
+  ha-heading-card-subtitle-color: "#C9C3B5"
+  ha-heading-badge-text-color: "#F4F0E6"
+  ha-dialog-surface-background: "#F4F0E6"
+  ha-dialog-border-radius: "0px"
+  ha-bottom-sheet-border-radius: "0px"
+  mdc-theme-surface: "#F4F0E6"
+  mdc-theme-primary: "#1F3D8C"
+  input-fill-color: "#ECE6D8"
+  input-disabled-fill-color: "#DDD6C6"
+  input-ink-color: "#141414"
+  input-label-ink-color: "#4A4740"
+  input-idle-line-color: "#141414"
+  input-hover-line-color: "#141414"
+  code-editor-background-color: "#ECE6D8"
+  markdown-code-background-color: "#ECE6D8"
+  table-row-background-color: "#F4F0E6"
+  table-row-alternative-background-color: "#ECE6D8"
+
+  # Header and sidebar: black paper, the selection in yellow.
+  app-header-background-color: "#141414"
+  app-header-text-color: "#F4F0E6"
+  app-header-selection-bar-color: "#F2B705"
+  app-header-edit-background-color: "#2A2B33"
+  sidebar-background-color: "#141414"
+  sidebar-text-color: "#F4F0E6"
+  sidebar-icon-color: "#C9C3B5"
+  sidebar-selected-icon-color: "#F2B705"
+  sidebar-selected-text-color: "#F2B705"
+
+  # Cobalt is the house's own colour and Home Assistant's primary.
+  primary-color: "#1F3D8C"
+  rgb-primary-color: "31, 61, 140"
+  accent-color: "#D7301F"
+  rgb-accent-color: "215, 48, 31"
+  # Home Assistant's own buttons and links read a primary ramp, not primary-color.
+  ha-color-primary-05: "#070E21"
+  ha-color-primary-10: "#0D1A3D"
+  ha-color-primary-20: "#132656"
+  ha-color-primary-30: "#1A3373"
+  ha-color-primary-40: "#1F3D8C"
+  ha-color-primary-50: "#3D5CB0"
+  ha-color-primary-60: "#5E7CC8"
+  ha-color-primary-70: "#8BA0D8"
+  ha-color-primary-80: "#B6C4E8"
+  ha-color-primary-90: "#DDE3F4"
+  ha-color-primary-95: "#EEF1FA"
+
+  # States keep one meaning everywhere: light is orange, heat vermilion, cold and security cobalt,
+  # the yard and good health olive, things to look at pink.
+  state-icon-color: "#4A4740"
+  state-light-active-color: "#E8632B"
+  state-switch-active-color: "#1F3D8C"
+  state-cover-active-color: "#E8632B"
+  state-fan-active-color: "#1F3D8C"
+  state-climate-heat-color: "#D7301F"
+  state-climate-cool-color: "#1F3D8C"
+  state-climate-heat_cool-color: "#E8632B"
+  state-climate-auto-color: "#6B7F2A"
+  state-climate-dry-color: "#F2B705"
+  state-climate-fan_only-color: "#4A4740"
+  state-media_player-active-color: "#E8632B"
+  state-lock-locked-color: "#1F3D8C"
+  state-lock-unlocked-color: "#F2B705"
+  state-lock-jammed-color: "#D7301F"
+  state-lock-pending-color: "#E9A3B8"
+  state-alarm_control_panel-armed_away-color: "#1F3D8C"
+  state-alarm_control_panel-armed_home-color: "#1F3D8C"
+  state-alarm_control_panel-armed_night-color: "#1F3D8C"
+  state-alarm_control_panel-triggered-color: "#D7301F"
+  state-person-home-color: "#6B7F2A"
+  state-device_tracker-home-color: "#6B7F2A"
+  state-binary_sensor-active-color: "#E8632B"
+  state-sun-above_horizon-color: "#F2B705"
+  state-sensor-battery-high-color: "#6B7F2A"
+  state-sensor-battery-medium-color: "#E8632B"
+  state-sensor-battery-low-color: "#D7301F"
+  switch-checked-color: "#1F3D8C"
+  success-color: "#6B7F2A"
+  warning-color: "#B8436A"
+  error-color: "#D7301F"
+  info-color: "#1F3D8C"
+
+  # Charts and the energy dashboard draw from the same six papers.
+  graph-color-1: "#1F3D8C"
+  graph-color-2: "#E8632B"
+  graph-color-3: "#6B7F2A"
+  graph-color-4: "#D7301F"
+  graph-color-5: "#F2B705"
+  graph-color-6: "#B8436A"
+  energy-grid-consumption-color: "#1F3D8C"
+  energy-grid-return-color: "#6B7F2A"
+  energy-solar-color: "#F2B705"
+  energy-battery-in-color: "#6B7F2A"
+  energy-battery-out-color: "#E8632B"
+  energy-gas-color: "#D7301F"
+  energy-water-color: "#3D5CB0"
+  energy-non-fossil-color: "#6B7F2A"
+
+  text-selection-color: "rgba(242,183,5,.45)"
+  scrollbar-thumb-color: "rgba(140,135,124,.6)"

@@ -1,0 +1,41 @@
+# Long-term statistics for the Doors cards. Without them the cards read the recorder's raw history,
+# ten days by default; with them, the spans reach back months. Put this file in a packages folder
+# (configuration.yaml: homeassistant: packages: !include_dir_named packages), then replace
+# binary_sensor.front_door with each of your door contacts, one block per door. The sensor names
+# must stay <contact>_open, <contact>_opening_length and <contact>_openings: the cards find them so.
+#
+# Per door: open (1 or 0, so an hour's mean is the share of it open), the opening's length in
+# minutes so far (held a minute after it shuts, so a day's max is its longest opening), and a
+# running count of openings (a day's change is that day's openings).
+template:
+  - sensor:
+      - name: Front door open
+        unique_id: collage_front_door_open
+        state_class: measurement
+        availability: "{{ states('binary_sensor.front_door') in ['on', 'off'] }}"
+        state: "{{ 1 if is_state('binary_sensor.front_door', 'on') else 0 }}"
+  - triggers:
+      - trigger: state
+        entity_id: binary_sensor.front_door
+      - trigger: time_pattern
+        minutes: /1
+    sensor:
+      - name: Front door opening length
+        unique_id: collage_front_door_opening_length
+        unit_of_measurement: min
+        state_class: measurement
+        state: >-
+          {% set d = 'binary_sensor.front_door' %}
+          {% if is_state(d, 'on') %}{{ ((now() - states[d].last_changed).total_seconds() / 60) | round(1) }}
+          {% elif trigger.platform == 'state' and trigger.from_state and trigger.from_state.state == 'on' %}{{ ((now() - trigger.from_state.last_changed).total_seconds() / 60) | round(1) }}
+          {% else %}0{% endif %}
+  - triggers:
+      - trigger: state
+        entity_id: binary_sensor.front_door
+        from: "off"
+        to: "on"
+    sensor:
+      - name: Front door openings
+        unique_id: collage_front_door_openings
+        state_class: total_increasing
+        state: "{{ this.state | int(0) + 1 }}"

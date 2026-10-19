@@ -1,0 +1,66 @@
+name: CI
+
+# The same checks a contributor runs: the bundle, the module, HACS's validation, and the check that
+# nothing private is published (okf/operations/local-development.md). Actions are pinned to
+# commits; Dependabot updates them.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: The documentation bundle is valid
+        run: python3 okf/tools/validate_okf.py
+      - name: The cards parse as a module
+        run: |
+          out=$(node -e "import('./dist/collage.js').catch(e => console.log(e.message))")
+          echo "$out"
+          test "$out" = "document is not defined"
+
+  hacs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: hacs/action@d556e736723344f83838d08488c983a15381059a # 22.5.0
+        with:
+          category: plugin
+          comment: "false"
+
+  publishable:
+    name: Nothing private
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Install gitleaks
+        run: |
+          curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz \
+            | tar -xz -C "$RUNNER_TEMP" gitleaks
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+      - name: The pull request's commits
+        if: github.event_name == 'pull_request'
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: python3 scripts/check_publishable.py --revs "$BASE..$HEAD"
+      - name: The pushed commits
+        if: github.event_name == 'push'
+        env:
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+        run: |
+          if [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            python3 scripts/check_publishable.py --all
+          else
+            python3 scripts/check_publishable.py --revs "$BEFORE..$AFTER"
+          fi

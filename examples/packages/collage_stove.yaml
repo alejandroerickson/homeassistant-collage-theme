@@ -1,0 +1,85 @@
+# Long-term statistics for the range and stove cards (a GE range on the SmartHQ integration).
+# Without them the cards read the recorder's raw history, ten days by default. Put this file in a
+# packages folder and replace RANGE with your range's entity-id prefix (the `appliance` the cards
+# are given, usually its serial number in lower case). The sensors are named kitchen_*, the
+# cards' default `statistics` prefix. Nothing meters energy: "heat" is power % x hours.
+template:
+  - binary_sensor:
+      - name: Kitchen stove on
+        unique_id: collage_kitchen_stove_on
+        state: >-
+          {{ is_state('binary_sensor.RANGE_cooktop_status', 'on')
+             or states('sensor.RANGE_upper_oven_current_state') not in ['Off', 'unavailable', 'unknown']
+             or states('sensor.RANGE_lower_oven_current_state') not in ['Off', 'unavailable', 'unknown'] }}
+      - name: Kitchen stove session
+        unique_id: collage_kitchen_stove_session
+        delay_off: "00:20:00"
+        state: "{{ is_state('binary_sensor.kitchen_stove_on', 'on') }}"
+      - name: Kitchen upper oven on
+        unique_id: collage_kitchen_upper_oven_on
+        state: "{{ states('sensor.RANGE_upper_oven_current_state') not in ['Off', 'unavailable', 'unknown'] }}"
+      - name: Kitchen lower oven on
+        unique_id: collage_kitchen_lower_oven_on
+        state: "{{ states('sensor.RANGE_lower_oven_current_state') not in ['Off', 'unavailable', 'unknown'] }}"
+
+sensor:
+  # Time on today, kept as statistics: the stove, the cooktop, each oven and each burner.
+  - platform: history_stats
+    name: Kitchen stove today
+    unique_id: collage_kitchen_stove_today
+    entity_id: binary_sensor.kitchen_stove_on
+    state: "on"
+    type: time
+    start: "{{ today_at() }}"
+    end: "{{ now() }}"
+  - platform: history_stats
+    name: Kitchen cooktop today
+    unique_id: collage_kitchen_cooktop_today
+    entity_id: binary_sensor.RANGE_cooktop_status
+    state: "on"
+    type: time
+    start: "{{ today_at() }}"
+    end: "{{ now() }}"
+  - platform: history_stats
+    name: Kitchen upper oven today
+    unique_id: collage_kitchen_upper_oven_today
+    entity_id: binary_sensor.kitchen_upper_oven_on
+    state: "on"
+    type: time
+    start: "{{ today_at() }}"
+    end: "{{ now() }}"
+  - platform: history_stats
+    name: Kitchen lower oven today
+    unique_id: collage_kitchen_lower_oven_today
+    entity_id: binary_sensor.kitchen_lower_oven_on
+    state: "on"
+    type: time
+    start: "{{ today_at() }}"
+    end: "{{ now() }}"
+  - platform: history_stats
+    name: Kitchen stove sessions today
+    unique_id: collage_kitchen_stove_sessions_today
+    entity_id: binary_sensor.kitchen_stove_session
+    state: "on"
+    type: count
+    start: "{{ today_at() }}"
+    end: "{{ now() }}"
+  # One block per burner: left_front, left_rear, right_front, right_rear; the warmer (center_rear)
+  # is named kitchen_warmer_today and has no heat sensor.
+  - platform: history_stats
+    name: Kitchen left front today
+    unique_id: collage_kitchen_left_front_today
+    entity_id: binary_sensor.RANGE_cooktop_status_left_front_on
+    state: "on"
+    type: time
+    start: "{{ today_at() }}"
+    end: "{{ now() }}"
+  - platform: integration
+    name: Kitchen left front heat
+    unique_id: collage_kitchen_left_front_heat
+    source: sensor.RANGE_cooktop_status_left_front_power_pct
+    method: left
+    unit_time: h
+    round: 2
+    max_sub_interval:
+      minutes: 5
