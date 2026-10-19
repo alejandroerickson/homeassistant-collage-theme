@@ -24,7 +24,7 @@ node tools/shoot.mjs --sky 15:30  # docs/media/: each view at 1300 and 390 pixel
 - `tools/shoot.mjs` finds Chrome at its usual macOS and Linux paths, or uses `CHROME`; on macOS it
   saves JPEGs with `sips`.
 - To try a change on a real Home Assistant, copy `dist/` over the installed copy
-  (`/config/www/community/home-assistant-collage-theme/` under HACS) and reload the browser
+  (`/config/www/community/homeassistant-collage-theme/` under HACS) and reload the browser
   without its cache. Bump the resource's `?v=` query so phones fetch it again.
 
 ## Checks

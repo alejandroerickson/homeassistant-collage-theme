@@ -36,15 +36,15 @@ entities.
 
 ### The cards, through HACS
 
-**[Open Collage in HACS on your Home Assistant.](https://my.home-assistant.io/redirect/hacs_repository/?owner=alejandroerickson&repository=home-assistant-collage-theme&category=plugin)**
+**[Open Collage in HACS on your Home Assistant.](https://my.home-assistant.io/redirect/hacs_repository/?owner=alejandroerickson&repository=homeassistant-collage-theme&category=plugin)**
 Or by hand:
 
 1. In [HACS](https://hacs.xyz/), open the three dots > **Custom repositories**, add
-   `https://github.com/alejandroerickson/home-assistant-collage-theme` with the type
+   `https://github.com/alejandroerickson/homeassistant-collage-theme` with the type
    **Dashboard**, then find **Collage** and download it.
 2. HACS normally adds the resource for you. If a card says it is not found, add it yourself:
    Settings > Dashboards > three dots > Resources > Add resource, URL
-   `/hacsfiles/home-assistant-collage-theme/collage.js`, type **JavaScript module**.
+   `/hacsfiles/homeassistant-collage-theme/collage.js`, type **JavaScript module**.
 
 ### The cards, by hand
 
@@ -76,7 +76,7 @@ agent instructions in [AGENTS.md](AGENTS.md) and the skill
 cards, find your entities and lay out a first dashboard without changing anything you didn't ask
 for. For example:
 
-> Install the Collage theme from github.com/alejandroerickson/home-assistant-collage-theme on my
+> Install the Collage theme from github.com/alejandroerickson/homeassistant-collage-theme on my
 > Home Assistant and make me a Home view with my lights, thermostat and weather. Show me the YAML
 > before you change anything.
 

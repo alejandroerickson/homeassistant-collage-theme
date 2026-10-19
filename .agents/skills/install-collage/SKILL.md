@@ -26,7 +26,7 @@ asked for, after showing them the change.
    SSH), Container or Core (a `config` folder on disk). Ask if you cannot see it. Find whether HACS
    is installed.
 2. **The cards.** With HACS: Custom repositories > add
-   `https://github.com/alejandroerickson/home-assistant-collage-theme` as **Dashboard**, download
+   `https://github.com/alejandroerickson/homeassistant-collage-theme` as **Dashboard**, download
    **Collage**. Without HACS: copy everything in `dist/` to `/config/www/collage/` and add the
    resource `/local/collage/collage.js`. Either way the resource must be a **JavaScript module**
    (Settings > Dashboards > Resources); check that it is there.

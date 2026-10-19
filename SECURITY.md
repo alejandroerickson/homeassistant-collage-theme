@@ -14,7 +14,7 @@ vulnerability.
 
 ## Supported versions
 
-The latest [release](https://github.com/alejandroerickson/home-assistant-collage-theme/releases).
+The latest [release](https://github.com/alejandroerickson/homeassistant-collage-theme/releases).
 
 ## How the repository is checked
 

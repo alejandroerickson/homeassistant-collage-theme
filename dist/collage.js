@@ -3,7 +3,7 @@
 // whatever is alive now carries an Arp form, and loose bits of patterned paper scatter
 // around the cards. Vanilla custom elements in one file, no build step; data comes from
 // Home Assistant's state, history and statistics websocket API. See DESIGN.md.
-// https://github.com/alejandroerickson/home-assistant-collage-theme (MIT)
+// https://github.com/alejandroerickson/homeassistant-collage-theme (MIT)
 
 const VERSION = "1.0.0";
 
@@ -3817,6 +3817,6 @@ const CARDS = [
 window.customCards = window.customCards || [];
 for (const [tag, cls, name, description] of CARDS) {
   if (!customElements.get(tag)) customElements.define(tag, cls);
-  window.customCards.push({ type: tag, name: `Collage: ${name}`, description, documentationURL: "https://github.com/alejandroerickson/home-assistant-collage-theme" });
+  window.customCards.push({ type: tag, name: `Collage: ${name}`, description, documentationURL: "https://github.com/alejandroerickson/homeassistant-collage-theme" });
 }
 console.info(`%c collage ${VERSION} `, "background:#D7301F;color:#F4F0E6;font-weight:700");
