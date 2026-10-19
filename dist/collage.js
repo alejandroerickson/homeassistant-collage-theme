@@ -5,7 +5,7 @@
 // Home Assistant's state, history and statistics websocket API. See DESIGN.md.
 // https://github.com/alejandroerickson/homeassistant-collage-theme (MIT)
 
-const VERSION = "1.0.0";
+const VERSION = "0.0.0";
 
 // ---------- the face: Familjen Grotesk, served next to this file ----------
 

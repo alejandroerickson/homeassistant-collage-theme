@@ -9,7 +9,7 @@ status: stable
 
 # Roadmap
 
-## Built (1.0.0)
+## Built (0.0.0)
 
 - The theme, covering Home Assistant's cards, dialogs, header, sidebar, states, charts and the
   energy dashboard.
